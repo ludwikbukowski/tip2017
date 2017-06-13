@@ -1,0 +1,42 @@
+group 'tipgradle3'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+}
+repositories{
+    maven { url "https://nexus.fd.io/content/repositories/fd.io.release/" }
+    //flatDir {
+    //    dirs 'external'
+    //}
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile "io.fd.vpp:jvpp-core:16.09"
+    compile "io.fd.vpp:jvpp-registry:16.09"
+}
+task run(type: JavaExec, dependsOn: classes) {
+    main = 'Main'
+    classpath sourceSets.main.runtimeClasspath
+    classpath configurations.runtime
+}
+jar {
+    manifest {
+        attributes (
+                'Implementation-Title': 'Midolman Java daemon',
+                'Implementation-Version': '1.0',
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'adriansr.jvpptest.Main'
+        )
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+
